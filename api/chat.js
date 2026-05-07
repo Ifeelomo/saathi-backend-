@@ -8,10 +8,6 @@ export default async function handler(req, res) {
   try {
     const { messages } = req.body;
     const key = process.env.GEMINI_API_KEY;
-    
-    console.log('Key exists:', !!key);
-    console.log('Key prefix:', key?.substring(0, 10));
-    console.log('Messages count:', messages?.length);
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
@@ -19,6 +15,9 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: `You are Saathi, a warm caring AI companion for Indians. Speak in natural Hinglish (Hindi+English mix). STRICT RULES: Maximum 2-3 sentences per reply. Never more. Never use bullet points or numbered lists. Never use bold formatting with asterisks. Talk like a close friend texting — short, warm, real. Ask only ONE follow-up question at a time. Use words like yaar, bilkul, sach mein, arre naturally. Acknowledge feelings first, then respond.` }]
+          },
           contents: messages.map(m => ({
             role: m.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: m.content }]
@@ -28,20 +27,10 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-    console.log('Gemini status:', response.status);
-    console.log('Gemini response:', JSON.stringify(data));
-
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!reply) {
-      console.log('No reply found, full data:', JSON.stringify(data));
-      return res.status(200).json({ reply: 'Debug: ' + JSON.stringify(data).substring(0, 200) });
-    }
-
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Yaar ek second, dobara try karo.';
     res.status(200).json({ reply });
 
   } catch (err) {
-    console.log('Catch error:', err.message);
-    res.status(200).json({ reply: 'Error: ' + err.message });
+    res.status(200).json({ reply: 'Kuch technical issue hai yaar, ek minute mein try karo.' });
   }
 }
