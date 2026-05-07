@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/saathi", "destination": "/public/saathi.html" }
+  ]
+}
