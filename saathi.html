@@ -894,17 +894,15 @@ async function submitLead() {
 }
 
 async function saveLead(data) {
-  // Fire-and-forget to your webhook
-  // This sends the lead to n8n/Make → Google Sheets
   try {
     await fetch(WEBHOOK_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   } catch (e) {
-    // Silent fail — don't break the user experience if webhook is down
-    console.log('Webhook save failed (silent):', e.message);
+    console.log('Webhook:', e.message);
   }
 }
 
